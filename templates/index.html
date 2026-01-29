@@ -1,46 +1,190 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Steganography Demo</title>
-  <style>
-    body { font-family: Arial; max-width: 700px; margin: 40px auto; }
-    .box { border: 1px solid #ddd; padding: 16px; border-radius: 12px; }
-    label { display: block; margin-top: 12px; }
-    button { margin-top: 16px; padding: 10px 14px; }
-  </style>
+    <meta charset="utf-8"/>
+    <title>Steganography Demo</title>
+
+    <style>
+        /*:root {*/
+        /*    --bg: #0f0f14;*/
+        /*    --card: #1a1a24;*/
+        /*    --accent: #ff4d88;*/
+        /*    --accent-soft: rgba(255, 77, 136, 0.2);*/
+        /*    --text: #f5f5f7;*/
+        /*    --muted: #a1a1b3;*/
+        /*    --border: #2a2a3a;*/
+        /*}*/
+
+        :root {
+            --bg: #0b0c14;
+            --card: rgba(22, 24, 46, 0.75);
+            --accent: #ff5c8a;
+            --accent-hover: #ff7aa2;
+            --accent-soft: rgba(255, 92, 138, 0.25);
+            --text: #f8f8ff;
+            --muted: #b5b7d6;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #1c1c2e, var(--bg));
+            color: var(--text);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+            sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+            padding: 32px;
+        }
+
+        h1 {
+            margin-bottom: 6px;
+            font-size: 2.4rem;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 22px rgba(255, 92, 138, 0.15);
+        }
+
+        p {
+            color: var(--muted);
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .box {
+            background: linear-gradient(180deg, #1f1f2f, var(--card));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+        }
+
+        label {
+            margin-top: 18px;
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        select,
+        input[type="file"] {
+            width: 100%;
+            margin-top: 8px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #12121a;
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        select:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+
+        button {
+            width: 100%;
+            margin-top: 28px;
+            padding: 14px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #ff4d88, #ff7aa8);
+            color: #000;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            /*box-shadow: 0 10px 30px rgb(101, 21, 21);*/
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(255, 77, 136, 0.45);
+            /*background: linear-gradient(135deg, rgba(77, 255, 136, 0.71), rgba(77, 255, 136, 0.63));*/
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        ul {
+            margin-top: 20px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        li {
+            background: rgba(255, 77, 136, 0.12);
+            border: 1px solid rgba(255, 77, 136, 0.35);
+            color: #ff9bbb;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+    </style>
 </head>
+
 <body>
-  <h1>Steganography Demo</h1>
-  <p>Upload a cover image + a secret image, pick a method, and download the output.</p>
+<div class="container">
+    <h1 style="text-align: center;">Steganography Demo App</h1>
+    <p style="text-align: center;">Upload a cover image + a secret image, choose the method, and download the output
+        picture.</p>
 
-  <div class="box">
-    <form action="/encode" method="post" enctype="multipart/form-data">
-      <label>Method:</label>
-      <select name="method">
-        {% for m in methods %}
-          <option value="{{m}}">{{m}}</option>
-        {% endfor %}
-      </select>
+    <div class="box">
+        <form action="/encode" method="post" enctype="multipart/form-data">
+            <label>Method</label>
 
-      <label>Cover image:</label>
-      <input type="file" name="cover" accept="image/*" required />
+            {% set method_labels = {
+            "LSB": "LSB - Least Significant Bit",
+            "DCT": "DCT - Discrete Cosine Transformation",
+            "PVD": "PVD - Pixel Value Differencing"
+            } %}
 
-      <label>Secret image:</label>
-      <input type="file" name="secret" accept="image/*" required />
 
-      <button type="submit">Encode & Download</button>
-    </form>
-  </div>
+            <select name="method">
+                {% for m in methods %}
+                <option value="{{ m }}">{{ method_labels.get(m, m) }}</option>
+                {% endfor %}
+            </select>
 
-  {% with messages = get_flashed_messages() %}
+            <label>Cover image</label>
+            <input type="file" name="cover" accept="image/*" required/>
+
+            <label>Secret image</label>
+            <input type="file" name="secret" accept="image/*" required/>
+
+            <button type="submit">Encode</button>
+        </form>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
     {% if messages %}
-      <ul>
+    <ul>
         {% for msg in messages %}
-          <li style="color: red;">{{ msg }}</li>
+        <li>{{ msg }}</li>
         {% endfor %}
-      </ul>
+    </ul>
     {% endif %}
-  {% endwith %}
+    {% endwith %}
+</div>
 </body>
 </html>
