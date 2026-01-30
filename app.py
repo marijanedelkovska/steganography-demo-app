@@ -7,7 +7,7 @@ from pvd import steganography_PVD
 from dct import steganography_DCT
 
 app = Flask(__name__)
-app.secret_key = "dev"  # for flash messages
+app.secret_key = "dev"
 
 UPLOAD_DIR = "uploads"
 OUT_DIR = "outputs"
@@ -46,7 +46,6 @@ def encode():
 
     out_path = os.path.join(OUT_DIR, f"{run_id}_{method}_output.png")
 
-    # Call your existing function (paths in, path out)
     METHODS[method](cover_path, secret_path, out_path)
 
     return send_file(out_path, as_attachment=True)
